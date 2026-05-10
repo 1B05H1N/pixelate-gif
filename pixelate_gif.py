@@ -18,6 +18,12 @@ def pixelate(image: Image.Image, factor: int = 8) -> Image.Image:
         resample=Image.NEAREST
     )
 
+def pixelate_image(src_path: str | Path, dst_path: str | Path, factor: int = 8):
+    with Image.open(src_path) as image:
+        pixelated = pixelate(image, factor)
+        pixelated.save(dst_path)
+    print(f"Saved pixelated image -> {dst_path}")
+
 def pixelate_gif(src_path: str | Path, dst_path: str | Path, factor: int = 8):
     reader = imageio.get_reader(src_path)
     meta   = reader.get_meta_data()
@@ -32,15 +38,34 @@ def pixelate_gif(src_path: str | Path, dst_path: str | Path, factor: int = 8):
         for frame in frames:
             writer.append_data(np.asarray(frame))
 
-    print(f"Saved pixelated GIF → {dst_path}")
+    print(f"Saved pixelated GIF -> {dst_path}")
+
+def detect_input_type(path: str | Path) -> str:
+    suffix = Path(path).suffix.lower()
+    if suffix == ".gif":
+        return "gif"
+    return "image"
 
 def main():
-    parser = argparse.ArgumentParser(description="Pixelate every frame of a GIF.")
-    parser.add_argument("input", help="Input GIF path")
-    parser.add_argument("output", help="Output GIF path")
+    parser = argparse.ArgumentParser(description="Pixelate GIFs or images.")
+    parser.add_argument("input", help="Input media path")
+    parser.add_argument("output", help="Output media path")
     parser.add_argument("--factor", type=int, default=8, help="Pixelation factor (default: 8)")
+    parser.add_argument(
+        "--input-type",
+        choices=["auto", "gif", "image"],
+        default="auto",
+        help="Input type. Use auto to detect from file extension (default: auto)."
+    )
     args = parser.parse_args()
-    pixelate_gif(args.input, args.output, args.factor)
+    input_type = args.input_type
+    if input_type == "auto":
+        input_type = detect_input_type(args.input)
+
+    if input_type == "gif":
+        pixelate_gif(args.input, args.output, args.factor)
+    else:
+        pixelate_image(args.input, args.output, args.factor)
 
 if __name__ == "__main__":
     main() 

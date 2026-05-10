@@ -1,9 +1,9 @@
 # pixelate-gif
 
-A pure-Python script to pixelate every frame of a GIF. Down-samples each frame to lose detail, then upscales with nearest-neighbor interpolation for a blocky, retro look.
+A pure-Python script to pixelate GIFs and images. It down-samples to lose detail, then upscales with nearest-neighbor interpolation for a blocky, retro look.
 
 ## Features
-- Works on any GIF (animated or static)
+- Works on GIFs (animated or static) and regular images
 - Adjustable pixelation factor
 - Preserves animation timing and loop count
 - No external dependencies beyond Pillow and imageio
@@ -16,6 +16,8 @@ pip install pillow imageio
 
 ## Usage
 
+### GIF input
+
 ```bash
 python pixelate_gif.py input.gif pixelated.gif --factor 10
 ```
@@ -24,10 +26,19 @@ python pixelate_gif.py input.gif pixelated.gif --factor 10
 - `pixelated.gif`: Output path
 - `--factor`: (Optional) Pixelation factor (default: 8)
 
+### Image input
+
+```bash
+python pixelate_gif.py input.png pixelated.png --factor 10 --input-type image
+```
+
+- `--input-type`: `auto`, `gif`, or `image` (default: `auto`)
+- In `auto` mode, `.gif` uses GIF processing and every other extension uses image processing.
+
 ## How it works
-1. Reads the GIF frame-by-frame
-2. Downscales and upscales each frame with nearest-neighbor
-3. Re-encodes all frames, preserving timing and loop info
+1. Detects GIF or image input type (`auto`, or forced via `--input-type`)
+2. Downscales and upscales with nearest-neighbor
+3. Re-encodes GIF frames with timing/loop metadata or writes a single image output
 
 ## Tweaks
 - Change `factor` for chunkier or finer pixelation
